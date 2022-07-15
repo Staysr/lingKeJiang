@@ -1,0 +1,77 @@
+{
+	"pages": [{
+		"path": "pages/login/index",
+		"style": {
+			"navigationBarTitleText": "登入"
+		}
+	},{
+		"path": "pages/index/index",
+		"style": {
+			"navigationBarTitleText": "领客匠",
+			"onReachBottomDistance":50
+		}
+	}, {
+		"path": "pages/merchant/info",
+		"style": {
+			"navigationBarTitleText": "商户详情"
+		}
+	}, {
+		"path": "pages/dynamic/add",
+		"style": {
+			"navigationBarTitleText": "社区动态"
+		}
+	}, {
+		"path": "pages/my/index",
+		"style": {
+			"navigationBarTitleText": "我的"
+		}
+	}, {
+		"path": "pages/dynamicDetails/dynamicDetails",
+		"style": {
+			"navigationBarTitleText": "动态详情"
+		}
+	},{
+		"path": "pages/address/option",
+		"style": {
+			"navigationBarTitleText": "城市选择"
+		}
+	}],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "领客匠",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#9CA5AA",
+		"selectedColor": "#0081ff",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+			"pagePath": "pages/index/index",
+			"iconPath": "static/ioc/home.png",
+			"selectedIconPath": "static/ioc/home_pre.png",
+			"text": "社区"
+		}, {
+			"pagePath": "pages/dynamic/add",
+			"iconPath": "static/ioc/zixun.png",
+			"selectedIconPath": "./static/ioc/zixun_pre.png",
+			"text": "社区动态"
+		}, {
+			"pagePath": "pages/my/index",
+			"iconPath": "static/ioc/my.png",
+			"selectedIconPath": "./static/ioc/my_pre.png",
+			"text": "我的"
+		}]
+	},
+	"uniIdRouter": {},
+	"usingComponts": true,
+	"condition": { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [{
+			"name": "表单", //模式名称
+			"path": "pages/component/form", //启动页面
+			"query": "" //启动参数
+		}]
+	}
+}
