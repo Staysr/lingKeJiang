@@ -30,7 +30,7 @@
 							<view class="text-gray" style="margin-left: 40rpx;margin-top: 8rpx;width: 87%;">
 								{{ companyList.company_auth.address }}
 							</view>
-							<img style="margin-right: 30rpx;position: absolute;right: 22rpx;top: 180rpx;width: 80rpx;height: 80rpx;"
+							<img @click="dialNumber(companyList.company_auth.contact)"  style="margin-right: 30rpx;position: absolute;right: 22rpx;top: 180rpx;width: 80rpx;height: 80rpx;"
 								src="../../static/phone.svg">
 							<view @click="dialNumber(companyList.company_auth.contact)"
 								style="position: absolute;right: 64rpx;bottom: 83rpx;" class="text-gray">电话</view>
