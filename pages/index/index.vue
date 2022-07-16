@@ -14,7 +14,8 @@
 					<picker style="margin-left: 8rpx;color: #FFFF;" @change="PickerChange" :value="index1"
 						:range="community" :range-key="'name'">
 						<view class="picker">
-							{{index1>-1?community[index1].name:'全部'}}<text style="color: white;" class="cuIcon-triangledownfill"></text>
+							{{index1>-1?community[index1].name:'全部'}}<text style="color: white;"
+								class="cuIcon-triangledownfill"></text>
 						</view>
 					</picker>
 
@@ -68,10 +69,10 @@
 				</view>
 			</view> -->
 			<view class="cu-item">
-				<view class="cu-avatar radius lg" :style="'background-image:url(' +  item.user.image +  ')'"></view>
+				<view class="cu-avatar radius lg" :style="'background-image:url(' +  item.image +  ')'"></view>
 				<view class="content">
 					<view>
-						<view class="text-cut">{{ item.company_name }}</view>
+						<view class="text-cut">{{ item.company_auth.company_name }}</view>
 					</view>
 				</view>
 			</view>
@@ -119,6 +120,8 @@
 				this.getLocationAohs()
 			},
 			PickerChange(e) {
+				this.allCommunityList(this.community[e.detail.value].id);
+				uni.setStorageSync('community', this.community[e.detail.value].id);
 				this.index1 = e.detail.value
 			},
 			InputBlur(e) {
@@ -131,16 +134,63 @@
 				}, {
 					code: this.regionCode,
 				}).then(res => {
+
 					//Todo 弹出4级小区选择器
 					if (res.statusCode == 200) {
-						if (res.data.length < 1) {
+						console.log(this.community)
+						this.community = [{
+							"name": "全部小区",
+							"id": 0,
+						}]
+						if (res.data.length > 0) {
+							for (var i = 0; i < res.data.length; i++) {
+								this.community.push({
+									"name": res.data[i].name,
+									"id": res.data[i].id,
+								})
+							}
+						} else {
+							this.index1 = 0
+						}
+
+						http.httpRequest({
+							url: 'company_user/',
+							method: 'get'
+						}, {
+							regions_code: this.regionCode
+						}).then(res => {
+							//Todo 弹出4级小区选择器
+							if (res.statusCode == 200) {
+								this.newsList = res.data.results
+								return;
+							}
 							uni.showToast({
 								icon: 'none',
-								title: '暂无小区,将展示默认'
+								title: '请求错误'
 							});
-						} else {
-							this.community = res.data
-						}
+						}, error => {
+							console.log(error);
+						})
+						return;
+					}
+					uni.showToast({
+						icon: 'none',
+						title: '请求错误'
+					});
+				}, error => {
+					console.log(error);
+				})
+			},
+			allCommunityList(e) {
+				http.httpRequest({
+					url: 'company_user/',
+					method: 'get'
+				}, {
+					complex: e
+				}).then(res => {
+					//Todo 弹出4级小区选择器
+					if (res.statusCode == 200) {
+						this.newsList = res.data.results
 						return;
 					}
 					uni.showToast({
@@ -184,7 +234,7 @@
 					limit: this.limit,
 				};
 				let opts = {
-					url: 'company/',
+					url: 'company_user/',
 					method: 'get'
 				};
 				http.httpRequest(opts, data).then(res => {
@@ -208,7 +258,7 @@
 				limit: this.limit
 			};
 			http.httpRequest({
-				url: 'company/',
+				url: 'company_user/',
 				method: 'get'
 			}, data).then(res => {
 				if (res.statusCode == 200) {
@@ -235,7 +285,7 @@
 	}
 
 	.tabbar {
-		height: 370rpx;
+		height: 365rpx;
 		width: 100%;
 		background-image: url(../../static/home/home.png);
 	}

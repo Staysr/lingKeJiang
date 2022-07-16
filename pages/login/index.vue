@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<view class="header">
-			<image src="../../static/login/logo.png"></image>
+			<image src="../../static/login/logo.svg"></image>
 		</view>
 
 		<view class="list">
@@ -44,20 +44,6 @@
 	import until from '@/components/utils/util.js';
 	var _this, js;
 	export default {
-		onLoad() {
-			var isLogin = uni.getStorageSync('Authorization');
-			if (isLogin != undefined || isLogin != '') {
-				uni.switchTab({
-					url: '../index/index'
-				});
-				return;
-			}
-			_this = this;
-		},
-		onUnload() {
-			clearInterval(js)
-			this.second = 0;
-		},
 		data() {
 			return {
 				phone: '',
@@ -82,7 +68,19 @@
 				}
 			}
 		},
+		onLoad() {
+			_this = this;
+			var isLogin = uni.getStorageSync('Authorization');
+			if (isLogin != undefined || isLogin != '') {
+				uni.switchTab({
+					url: '../index/index'
+				});
+				return;
+			}
+		},
 		onUnload() {
+			clearInterval(js)
+			this.second = 0;
 			this.clear()
 		},
 		methods: {
@@ -117,13 +115,7 @@
 					return;
 				}
 				this.second = 60;
-				//请求业务
-				js = setInterval(function() {
-					_this.second--;
-					if (_this.second == 0) {
-						_this.clear()
-					}
-				}, 1000)
+				//请求业务逻辑
 				http.httpTokenRequest({
 					url: 'sms/',
 					method: 'post'
@@ -136,7 +128,6 @@
 							position: 'bottom',
 							title: '手机号格式错误'
 						});
-						clearInterval(js)
 						this.second = 0;
 						return false
 					}
@@ -145,6 +136,12 @@
 						position: 'bottom',
 						title: '发送成功'
 					});
+					js = setInterval(function() {
+						_this.second--;
+						if (_this.second == 0) {
+							_this.clear()
+						}
+					}, 1000)
 				}, error => {
 					this.second == 0
 				})
@@ -186,7 +183,7 @@
 					mobile: this.phone,
 					code: this.code
 				}).then(res => {
-					if(res.statusCode == 200){
+					if (res.statusCode == 200) {
 						uni.setStorageSync('Authorization', res.data.access);
 						uni.showToast({
 							icon: 'none',
@@ -219,7 +216,7 @@
 	.header {
 		width: 161rpx;
 		height: 161rpx;
-		background: rgba(63, 205, 235, 1);
+		/* background: rgba(63, 205, 235, 1); */
 		box-shadow: 0rpx 12rpx 13rpx 0rpx rgba(63, 205, 235, 0.47);
 		border-radius: 50%;
 		margin-top: 30rpx;

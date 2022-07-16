@@ -3,22 +3,21 @@
 		<view class="container jiangqie-page-view">
 			<view class="jiangqie-page-head">
 				<view class="jiangqie-page-title">
-					<text>这是标题这是标题这是标题</text>
+					<text>{{ data.title }}</text>
 					<view class="jiangqie-page-cmt">
-						<view class="cu-avatar sm radius"
-							style="background-image:url(https://ossweb-img.qq.com/images/lol/web201310/skin/big10001.jpg)">
+						<view v-if="data.user != undefined" class="cu-avatar sm radius"
+							:style="'background-image:url(' +  data.user.image +  ')'">
 						</view>
-						<text style="margin-left: 12rpx;color: #666666;font-size: 28rpx;">芳如家政 (经四路万达中心)</text>
+						<text style="margin-left: 12rpx;color: #666666;font-size: 28rpx;">{{ data.user.company_auth.company_name }}</text>
 					</view>
 				</view>
 			</view>
 			<view style="padding: 40rpx;">
 				<span class="count">
-					这是发表的文本内容这是发表的文本内容这是发表的文本内容这是发表的文本内容
-					这是发表的文本内容这是发表的文本内容这是发表的文本内容这是发表的文本内容这是发表的文本内容这是发表的文本内容这是发表的文本内容这是发表的文本内容
-					这是发表的文本内容这是发表的文本内容这是发表的文本内容这是发表的文本内容
+					{{ data.content }}
 				</span>
-				<image src="../../static/2565.jpg_wh1200.jpg" alt="aspectFit"></image>
+				<image v-for="(item,index) in data.activity_images" @click="preview(item.image)" :src="item.image" 
+					alt="aspectFit"></image>
 			</view>
 
 			<!-- 评论 -->
@@ -100,6 +99,7 @@
 </template>
 
 <script>
+	import http from '@/components/utils/http.js';
 	export default {
 		data() {
 			return {
@@ -111,9 +111,14 @@
 				post_favorite: 0,
 				comment_content: '',
 				placeholder: "",
+				id: 0,
+				data: ''
 			}
 		},
-		onLoad(options) {},
+		onLoad(options) {
+			this.id = options.id
+			this.getInfo()
+		},
 		methods: {
 			/**
 			 * 评论 弹框
@@ -125,12 +130,36 @@
 			handlerCancelClick(e) {
 				this.show_comment_submit = false
 			},
+			preview(url) {
+				uni.previewImage({
+					urls: [url],
+				});
+			},
 			/**
 			 * 评论输入
 			 */
 			handlerContentInput(e) {
 				this.comment_content = e.detail.value;
 			},
+			//获取详情
+			getInfo() {
+				http.httpRequest({
+					url: 'activity/' + this.id,
+					method: 'get'
+				}).then(res => {
+					console.log(res)
+					if (res.statusCode == 200) {
+						this.data = res.data
+						return;
+					}
+					uni.showToast({
+						icon: 'none',
+						title: '请求错误'
+					});
+				}, error => {
+					console.log(error);
+				})
+			}
 		}
 	}
 </script>
@@ -483,7 +512,7 @@
 		z-index: 99999;
 		padding-bottom: env(safe-area-inset-bottom);
 		background: #FFFFFF;
-		box-shadow: 0 -2rpx 24rpx 0 rgba(153,153,153,0.0800);
+		box-shadow: 0 -2rpx 24rpx 0 rgba(153, 153, 153, 0.0800);
 		border-radius: 35rpx 35rpx 0 0;
 	}
 

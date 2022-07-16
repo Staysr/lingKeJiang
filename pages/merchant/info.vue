@@ -4,14 +4,14 @@
 		<view class="tabbar">
 			<img class="bgImg" src="../../static/info@2.png">
 			<view class="cu-card dynamic" style="position: absolute;top:180rpx; width: 750rpx;">
-				<view class="cu-item shadow">
+				<view v-if="companyList != ''"  class="cu-item shadow">
 					<view class="cu-list menu-avatar">
 						<view class="cu-item">
-							<view v-if="companyList != ''" class="cu-avatar radius lg"
-								:style="'background-image:url(' +  companyList.user.image +  ')'">
+							<view class="cu-avatar radius lg"
+								:style="'background-image:url(' +  companyList.image +  ')'">
 							</view>
 							<view class="content flex-sub text-bold">
-								<view>{{ companyList.company_name }}</view>
+								<view>{{ companyList.company_auth.company_name }}</view>
 							</view>
 							<view style="margin-right: 15rpx;">
 								<button class="cu-btn round bg-blue shadow">关注</button>
@@ -28,11 +28,11 @@
 								</view>
 							</view>
 							<view class="text-gray" style="margin-left: 40rpx;margin-top: 8rpx;width: 87%;">
-								{{ companyList.address }}
+								{{ companyList.company_auth.address }}
 							</view>
 							<img style="margin-right: 30rpx;position: absolute;right: 22rpx;top: 180rpx;width: 80rpx;height: 80rpx;"
 								src="../../static/phone.svg">
-							<view @click="dialNumber(companyList.contact)"
+							<view @click="dialNumber(companyList.company_auth.contact)"
 								style="position: absolute;right: 64rpx;bottom: 83rpx;" class="text-gray">电话</view>
 						</view>
 					</view>
@@ -52,13 +52,13 @@
 		<view v-for="(item,index) in dongtList.results" class="cu-card dynamic no-card"
 			style="border-radius: 15px;margin-left: 30rpx;margin-top: 20rpx;margin-right: 30rpx;margin-bottom: 20rpx;">
 			<view class="cu-item shadow">
-				<view class="cu-list menu-avatar" @click="dyinfo">
+				<view class="cu-list menu-avatar" @click="dyinfo(item.id)">
 					<view class="cu-item">
 						<view class="cu-avatar radius lg"
-							:style="'background-image:url(' +  companyList.user.image +  ')'">
+							:style="'background-image:url(' +  item.user.image +  ')'">
 						</view>
 						<view class="content flex-sub">
-							<view>{{ companyList.company_name }}</view>
+							<view>{{ item.user.company_auth.company_name }}</view>
 							<view class="text-gray text-sm flex justify-between">
 								{{ item.create_time }}
 							</view>
@@ -70,7 +70,8 @@
 				</view>
 				<view class="grid flex-sub padding-lr"
 					:class="item.activity_images.length > 1 ?'col-3 grid-square':'col-1'">
-					<view class="bg-img" :class="item.activity_images.length > 1 ?'':'only-img'"
+					<view class="bg-img" @click="preview(item.activity_images)"
+						:class="item.activity_images.length > 1 ?'':'only-img'"
 						:style="'background-image:url(' +  items.image +  ')'"
 						v-for="(items,index) in item.activity_images" :key="index">
 					</view>
@@ -121,14 +122,23 @@
 				this.TabCur = e.currentTarget.dataset.id;
 				this.scrollLeft = (e.currentTarget.dataset.id - 1) * 60
 			},
-			dyinfo() {
+			dyinfo(e) {
 				uni.navigateTo({
-					url: '../dynamicDetails/dynamicDetails'
+					url: '../dynamicDetails/dynamicDetails?id=' + e
+				});
+			},
+			preview(urls) {
+				let arrUrls = [];
+				for (var i = 0; i < urls.length; i++) {
+					arrUrls.push(urls[i]['image'])
+				}
+				uni.previewImage({
+					urls: arrUrls,
 				});
 			},
 			getcompanyList(opt) {
 				http.httpRequest({
-					url: 'company/' + opt.id,
+					url: 'company_user/' + opt.id,
 					method: 'get'
 				}).then(res => {
 					if (res.statusCode == 200) {
@@ -149,8 +159,8 @@
 					url: 'activity/',
 					method: 'get'
 				}, {
-					complex: this.companyList.complex.id,
-					user_id: this.companyList.user.id,
+					complex: this.companyList.id,
+					user_id: this.companyList.company_auth.id,
 					category: 1
 				}).then(res => {
 					if (res.statusCode == 200) {

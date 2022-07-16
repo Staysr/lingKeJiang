@@ -74,8 +74,12 @@
 
 <style>
 	.content {
-		background-color: #fff;
-		height: 1200rpx;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: #ffffff;
 	}
 
 	.avatar {
