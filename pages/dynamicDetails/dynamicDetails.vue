@@ -8,7 +8,8 @@
 						<view v-if="data.user != undefined" class="cu-avatar sm radius"
 							:style="'background-image:url(' +  data.user.image +  ')'">
 						</view>
-						<text style="margin-left: 12rpx;color: #666666;font-size: 28rpx;">{{ data.user.company_auth.company_name }}</text>
+						<text v-if="data.user != undefined"
+							style="margin-left: 12rpx;color: #666666;font-size: 28rpx;">{{ data.user.company_auth.company_name }}</text>
 					</view>
 				</view>
 			</view>
@@ -16,27 +17,27 @@
 				<span class="count">
 					{{ data.content }}
 				</span>
-				<image v-for="(item,index) in data.activity_images" @click="preview(item.image)" :src="item.image" 
+				<image v-for="(item,index) in data.activity_images" @click="preview(item.image)" :src="item.image"
 					alt="aspectFit"></image>
 			</view>
 
 			<!-- 评论 -->
 			<view class="jiangqie-page-cmtbox">
-				<view class="jiangqie-page-cmt-title">回复</view>
+				<view class="jiangqie-page-cmt-title">评论</view>
 				<template v-if="true">
-					<view v-for="(item, index) in 3" :key="index" class="jiangqie-page-cmt-content">
+					<view v-for="(item, index) in listComment" :key="index" class="jiangqie-page-cmt-content">
 						<view class="jiangqie-page-cmt-avatar radius">
 							<image src="../../static/2565.jpg_wh1200.jpg" mode="aspectFill"></image>
 						</view>
 						<view class="jiangqie-page-cmt-head">
-							芳如家政 (经四路万达中心)
+							{{ item.user.company_auth.company_name }}
 						</view>
 						<view class="time">
-							<text>2022-03-23</text>
+							<text>{{ item.create_time }}</text>
 						</view>
 						<view class="jiangqie-page-cmt-text">
-							<text class="p-count">这是发表的文本内容这是发表的文本内容这是发表的文本内容这是发表的文本内容</text>
-							<view class="jiangqie-page-cmt-replay">
+							<text class="p-count">{{ item.content }}</text>
+							<!-- <view class="jiangqie-page-cmt-replay">
 								<view v-if="index > 1" v-for="(reply, index2) in 2" :key="index2"
 									class="jiangqie-page-cmt-replay-box">
 									<view class="jiangqie-page-cmt-replay-nametime">
@@ -45,7 +46,7 @@
 									</view>
 									<view class="jiangqie-page-cmt-replay-world">你说的啥啊哈</view>
 								</view>
-							</view>
+							</view> -->
 						</view>
 					</view>
 				</template>
@@ -63,10 +64,11 @@
 					<image src="../../static/comment.svg" mode="widthFix"></image>
 					<span class="count-test">评论</span>
 				</view>
-				<view class="jiangqie-operation-item">
+				<view class="jiangqie-operation-item" @click="listAdd">
 					<template>
-						<image src="../../static/like.svg" mode="widthFix"></image>
-						<span class="count-test">点赞</span>
+						<image :src="likeStatus.id > 0 ? '../../static/onlike.svg':'../../static/like.svg'"
+							mode="widthFix"></image>
+						<span class="count-test">{{ likeStatus.id > 0 ? "已收藏" : "收藏" }}</span>
 					</template>
 				</view>
 				<view class="jiangqie-operation-item">
@@ -112,7 +114,9 @@
 				comment_content: '',
 				placeholder: "",
 				id: 0,
-				data: ''
+				data: '',
+				likeStatus: '',
+				listComment: []
 			}
 		},
 		onLoad(options) {
@@ -130,16 +134,96 @@
 			handlerCancelClick(e) {
 				this.show_comment_submit = false
 			},
+			getComment() {
+				http.httpRequest({
+					url: 'activity_comment/?activity=' + this.data.id,
+					method: 'get'
+				}).then(res => {
+					if (res.statusCode == 200) {
+						this.listComment = res.data.results
+						return false;
+					}
+					console.log(res)
+					uni.showToast({
+						icon: 'none',
+						title: '请求错误'
+					});
+				}, error => {
+					console.log(error);
+				})
+			},
 			preview(url) {
 				uni.previewImage({
 					urls: [url],
 				});
+			},
+			listAdd() {
+				let data = {
+					activity: this.data.id
+				};
+				if (this.likeStatus.id > 0) {
+					http.httpRequest({
+						url: 'user_fav/' + data.activity,
+						method: 'delete'
+					}).then(res => {
+						if (res.data["non_field_errors"] !== undefined) {
+							if (res.data.non_field_errors[0] == "已关注") {
+								this.likeStatus.id = 999
+							}
+						} else {
+							this.likeStatus = res.data
+						}
+						uni.showToast({
+							icon: 'none',
+							title: '已取消收藏'
+						});
+					}, error => {
+						console.log(error);
+					})
+				} else {
+					http.httpRequest({
+						url: 'user_fav/',
+						method: 'post'
+					}, data).then(res => {
+						if (res.data["non_field_errors"] !== undefined) {
+							if (res.data.non_field_errors[0] == "已关注") {
+								this.likeStatus.id = 999
+							}
+						} else {
+							this.likeStatus = res.data
+						}
+						uni.showToast({
+							icon: 'none',
+							title: '收藏成功'
+						});
+					}, error => {
+						console.log(error);
+					})
+				}
 			},
 			/**
 			 * 评论输入
 			 */
 			handlerContentInput(e) {
 				this.comment_content = e.detail.value;
+			},
+			islike() {
+				http.httpRequest({
+					url: 'user_fav/' + this.data.id,
+					method: 'get'
+				}).then(res => {
+					console.log(res)
+					if (res.statusCode == 200) {
+						this.likeStatus = res.data
+						return;
+					}
+					uni.showToast({
+						icon: 'none',
+						title: '请求错误'
+					});
+				}, error => {
+					console.log(error);
+				})
 			},
 			//获取详情
 			getInfo() {
@@ -150,6 +234,8 @@
 					console.log(res)
 					if (res.statusCode == 200) {
 						this.data = res.data
+						this.islike()
+						this.getComment()
 						return;
 					}
 					uni.showToast({

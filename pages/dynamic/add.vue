@@ -16,7 +16,7 @@
 						</view>
 					</view>
 				</view>
-				<view class="text-content">
+				<view  style="margin-top: 22rpx;" class="text-content">
 					{{ item.title }}
 				</view>
 				<view class="grid flex-sub padding-lr"
@@ -67,11 +67,10 @@
 				for (var i= 0; i<urls.length; ){
 					arrUrls.push(urls[i]['image'])
 				}
-				console.log(arrUrls)
 				uni.previewImage({
 					urls: arrUrls,
 				});
-			},
+			}
 		},
 		onLoad() {
 			var complexId = uni.getStorageSync('community')

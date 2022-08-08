@@ -3,14 +3,17 @@
 		<!-- 顶部 -->
 		<view class="tabbar">
 			<view class="cu-bar search">
-				<view class="action">
-					<pick-regions :defaultRegion="defaultRegionCode" @getRegion="handleGetRegion">
+				<view class="action" @click="showModal">
+					<!-- <pick-regions :defaultRegion="defaultRegionCode" @getRegion="handleGetRegion">
 						<text style="color: white;" class="cuIcon-locationfill"></text><text
 							style="color: white;margin-left: 12rpx;">{{ regionName }}</text>
 						<text style="color: white;" class="cuIcon-triangledownfill"></text>
-					</pick-regions>
+					</pick-regions> -->
+					<text style="color: white;" class="cuIcon-locationfill"></text><text
+						style="color: white;margin-left: 12rpx;">{{ regionName }}</text>
+					<text style="color: white;margin-left: 10rpx;" class="cuIcon-triangledownfill"></text>
 				</view>
-				<view v-if="community.length >= 1">
+				<!-- <view v-if="community.length >= 1">
 					<picker style="margin-left: 8rpx;color: #FFFF;" @change="PickerChange" :value="index1"
 						:range="community" :range-key="'name'">
 						<view class="picker">
@@ -19,7 +22,7 @@
 						</view>
 					</picker>
 
-				</view>
+				</view> -->
 				<view class="search-form round">
 					<text class="cuIcon-search"></text>
 					<input @blur="InputBlur" :adjust-position="false" type="text" placeholder="搜索商家名称"
@@ -91,14 +94,13 @@
 			return {
 				InputCux: "",
 				offset: 0,
-				limit: 10,
+				limit: 30,
 				newsList: [],
 				regionName: '正在获取位置',
 				regionCode: 0,
-				defaultRegion: ['河北省', '石家庄', '桥西区'],
-				defaultRegionCode: "130104",
 				community: [],
 				index1: 0,
+				modalName: null
 
 			}
 		},
@@ -111,6 +113,7 @@
 				return;
 			}
 			this.list()
+			this.getAddList()
 			// this.location()
 		},
 		methods: {
@@ -118,6 +121,21 @@
 				this.regionName = region[2].name
 				this.regionCode = region[2].code
 				this.getLocationAohs()
+			},
+			getAddList() {
+				var value = uni.getStorageSync('currentPosition');
+				if (value != "") {
+					this.regionName = value.name
+				} else {
+					this.regionName = "正在获取位置"
+				}
+			},
+			showModal(e) {
+				uni.navigateTo({
+					url: '../address/option',
+					animationType: "pop-in",
+					animationDuration: 30
+				});
 			},
 			PickerChange(e) {
 				this.allCommunityList(this.community[e.detail.value].id);
@@ -254,7 +272,7 @@
 		onReachBottom() {
 			++this.offset;
 			let data = {
-				offset: this.offset,
+				offset: this.offset * this.limit,
 				limit: this.limit
 			};
 			http.httpRequest({
