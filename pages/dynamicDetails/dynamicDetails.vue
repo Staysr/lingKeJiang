@@ -27,7 +27,7 @@
 				<template v-if="true">
 					<view v-for="(item, index) in listComment" :key="index" class="jiangqie-page-cmt-content">
 						<view class="jiangqie-page-cmt-avatar radius">
-							<image src="../../static/2565.jpg_wh1200.jpg" mode="aspectFill"></image>
+							<image :src="item.user.image" mode="aspectFill"></image>
 						</view>
 						<view class="jiangqie-page-cmt-head">
 							{{ item.user.company_auth.company_name }}
